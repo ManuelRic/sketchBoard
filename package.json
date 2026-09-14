@@ -1,1 +1,1 @@
-{"name":"plane-whiteboard","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node server.mjs","check":"node --check dist/main.js && node --check dist/model.js && node --test test/model.test.js"}}
+{"name":"plane-whiteboard","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node server.mjs","check":"node --check dist/main.js && node --check dist/model.js && node --check dist/drawing.js && node --check dist/drawing-controls.js && node --test test/*.test.js"}}
