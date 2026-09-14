@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>Plane — Whiteboard</title>
+  <meta name="description" content="Make room for your ideas. An expandable whiteboard with text, images, connectors, and layers.">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Plane whiteboard"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 8h14v14H6zM12 14h14v14H12" fill="none" stroke="currentColor" stroke-width="2.5"/></svg><span>plane</span></a>
+    <span class="header-divider"></span>
+    <input id="board-title" aria-label="Board name" value="Untitled board" maxlength="100">
+    <span class="session-label" title="Changes are cleared when you reload or close this page">Session board</span>
+    <div class="header-actions"><button id="fit-header" class="text-button" title="Fit canvas (Shift + 1)">Fit canvas</button><button id="layers-toggle" class="button" aria-expanded="true" aria-controls="sidebar"><span data-icon="layers"></span><span>Layers</span></button></div>
+  </header>
+  <main class="workspace">
+    <section id="viewport" aria-label="Whiteboard canvas" tabindex="0">
+      <div id="world"><div id="paper"></div><div id="objects"></div><div id="overlay"></div></div>
+      <div class="canvas-label" id="canvas-label">CANVAS 01</div>
+      <nav class="toolbar" aria-label="Whiteboard tools">
+        <button class="tool active" data-tool="select" aria-label="Select (V)" title="Select · V" aria-pressed="true" data-icon="select"></button>
+        <button class="tool" data-tool="hand" aria-label="Pan (H)" title="Pan · H" aria-pressed="false" data-icon="hand"></button>
+        <span class="tool-divider"></span>
+        <button class="tool" data-tool="text" aria-label="Add text (T)" title="Text · T" aria-pressed="false" data-icon="text"></button>
+        <button class="tool" data-tool="image" aria-label="Insert image (I)" title="Image · I" aria-pressed="false" data-icon="image"></button>
+        <button class="tool" data-tool="arrow" aria-label="Connect with arrow (A)" title="Arrow · A" aria-pressed="false" data-icon="arrow"></button>
+        <button class="tool" data-tool="pen" aria-label="Draw (P)" title="Draw · P" aria-pressed="false" data-icon="pen"></button>
+        <span class="tool-divider"></span>
+        <button class="tool" id="undo" aria-label="Undo" title="Undo · Ctrl/⌘ Z" data-icon="undo" disabled></button>
+        <button class="tool" id="redo" aria-label="Redo" title="Redo · Ctrl/⌘ Shift Z" data-icon="redo" disabled></button>
+      </nav>
+      <button class="edge edge-top" data-expand="top" aria-label="Expand canvas upward" title="Add space above">+</button>
+      <button class="edge edge-right" data-expand="right" aria-label="Expand canvas rightward" title="Add space to the right">+</button>
+      <button class="edge edge-bottom" data-expand="bottom" aria-label="Expand canvas downward" title="Add space below">+</button>
+      <button class="edge edge-left" data-expand="left" aria-label="Expand canvas leftward" title="Add space to the left">+</button>
+      <div class="view-controls"><button id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button><button id="zoom-label" title="Reset to 100%">100%</button><button id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button><span></span><button id="fit" aria-label="Fit canvas" title="Fit canvas · Shift 1" data-icon="fit"></button></div>
+      <div class="canvas-hint" id="hint">Click an edge <b>+</b> to make room.</div>
+      <div class="canvas-size" id="size-label"></div>
+      <div id="toast" role="status" aria-live="polite"></div>
+    </section>
+    <aside id="sidebar" class="sidebar" aria-label="Layers and object properties">
+      <div class="sidebar-heading"><h1>Layers</h1><button class="icon-button" id="add-layer" aria-label="Add layer" title="New layer">+</button></div>
+      <div class="sidebar-caption"><span id="object-count">0 objects</span><span>Top layer in front</span></div>
+      <div id="layer-list"></div>
+      <section id="inspector" class="inspector" aria-label="Selection properties"></section>
+      <div class="sidebar-footer"><span data-icon="cursor"></span><p>Select something to edit it.<br>Drag to move. Double-click text to write.</p></div>
+    </aside>
+  </main>
+  <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/svg+xml" multiple hidden>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
