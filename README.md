@@ -10,7 +10,7 @@ Run `npm run dev`, then open the printed local address. Run `npm run check` for 
 - **T** then click creates editable text. Double-click existing text to edit it. Ctrl/Command + Enter finishes; Escape cancels the edit.
 - **I** imports images. Images can also be dropped or pasted onto the canvas.
 - **A** then click two objects creates an attached arrow. Drag across empty space for a free arrow. Select an arrow and drag its endpoints to attach or detach them.
-- **P** draws freehand strokes.
+- **P** opens drawing controls. Choose Pencil, Ink pen, Ink brush, or Fountain pen, then set a palette/custom color, width, and smoothing (0–100%). Ink brush supports stylus pressure and simulated variation from mouse speed. Fountain pen uses an angled nib. Drawing controls can also change a selected existing drawing; raw samples are preserved for reversible smoothing. A tap creates a dot.
 - Use the four edge **+** buttons to add space in any direction. Each click adds a strip and moves the view into it; existing object coordinates remain unchanged.
 - Scroll pans; Ctrl/Command + scroll zooms. Shift + 1 fits the canvas.
 - Delete removes the selection. Ctrl/Command + D duplicates it. Ctrl/Command + Z undoes; Ctrl/Command + Shift + Z redoes.

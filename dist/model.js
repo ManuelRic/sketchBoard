@@ -1,6 +1,7 @@
+import {canvasSettings} from './canvas.js';
 const id=()=>crypto.randomUUID();
 export const clone=value=>JSON.parse(JSON.stringify(value));
-export function createBoard(){const layer=id();return {bounds:{x:-800,y:-500,w:1600,h:1000},layers:[{id:layer,name:'Layer 1',visible:true,locked:false}],objects:[],activeLayer:layer};}
+export function createBoard(){const layer=id();return {bounds:{x:-800,y:-500,w:1600,h:1000},canvas:canvasSettings(),layers:[{id:layer,name:'Layer 1',visible:true,locked:false}],objects:[],activeLayer:layer};}
 export function layerOf(board,object){return board.layers.find(layer=>layer.id===object.layer);}
 export function editable(board,object){const layer=layerOf(board,object);return !!layer&&layer.visible&&!layer.locked;}
 export function expand(board,direction){if(!['top','right','bottom','left'].includes(direction))throw new Error('Unknown direction');const b=board.bounds;if(direction==='left'){b.x-=800;b.w+=800}if(direction==='right')b.w+=800;if(direction==='top'){b.y-=600;b.h+=600}if(direction==='bottom')b.h+=600;return {...b};}
