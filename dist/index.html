@@ -11,7 +11,7 @@
 <body>
   <main class="workspace">
     <section id="viewport" aria-label="Whiteboard canvas" tabindex="0">
-      <div class="floating-top" aria-label="Board controls"><input id="board-title" aria-label="Board name" value="Untitled board" maxlength="100"><button id="fit-header" title="Fit canvas (Shift + 1)" data-icon="fit" aria-label="Fit canvas"></button><button id="canvas-settings" aria-haspopup="dialog" aria-controls="canvas-dialog" title="Canvas settings" data-icon="canvas" aria-label="Canvas settings"></button><button id="layers-toggle" aria-expanded="true" aria-controls="sidebar" title="Layers" data-icon="layers" aria-label="Toggle layers"></button></div>
+      <div class="floating-top" aria-label="Board controls"><input id="board-title" aria-label="Board name" value="Untitled board" maxlength="100"><button id="fit-header" title="Fit canvas (Shift + 1)" data-icon="fit" aria-label="Fit canvas"></button><button id="canvas-settings" aria-haspopup="dialog" aria-controls="canvas-dialog" title="Canvas settings" data-icon="canvas" aria-label="Canvas settings"></button><button id="properties-toggle" aria-expanded="true" aria-controls="properties-panel" title="Properties" data-icon="properties" aria-label="Toggle properties"></button><button id="layers-toggle" aria-expanded="true" aria-controls="layers-panel" title="Layers" data-icon="layers" aria-label="Toggle layers"></button><button id="layout-reset" title="Reset panel layout" data-icon="layout" aria-label="Reset panel layout"></button></div>
       <div id="world"><div id="paper"></div><div id="objects"></div><div id="overlay"></div></div>
       <div id="empty-state" class="empty-state" aria-label="Start creating">
         <span class="eyebrow">Blank canvas</span><strong>Put down your first idea</strong><p>Start with a note, a shape, or a freehand sketch.</p>
@@ -41,13 +41,15 @@
       <div class="canvas-size" id="size-label"></div>
       <div id="toast" role="status" aria-live="polite"></div>
     </section>
-    <aside id="sidebar" class="sidebar" aria-label="Layers and object properties">
+    <aside id="layers-panel" class="workspace-panel layers-panel" data-panel-id="layers" aria-label="Layers">
       <div class="panel-resize" data-panel-resize aria-hidden="true"></div>
-      <div class="sidebar-heading" id="sidebar-drag"><span class="drag-grip" aria-hidden="true">⠿</span><h1>Layers</h1><div class="panel-actions"><button data-panel-dock="left" title="Dock left" aria-label="Dock panel left">◧</button><button data-panel-dock="top" title="Dock top" aria-label="Dock panel top">▥</button><button data-panel-dock="bottom" title="Dock bottom" aria-label="Dock panel bottom">▤</button><button data-panel-dock="right" title="Dock right" aria-label="Dock panel right">◨</button><button data-panel-collapse title="Collapse panel" aria-label="Collapse panel">›</button><button class="icon-button" id="add-layer" aria-label="Add layer" title="New layer">+</button></div></div>
-      <div class="sidebar-caption"><span id="object-count">0 objects</span><span>Top layer in front</span></div>
-      <div id="layer-list"></div>
-      <section id="inspector" class="inspector" aria-label="Selection properties"></section>
-      <div class="sidebar-footer"><span data-icon="cursor"></span><p>Select something to edit it.<br>Drag to move. Double-click text to write.</p></div>
+      <div class="panel-heading" id="layers-drag"><span class="drag-grip" aria-hidden="true">⠿</span><h1>Layers</h1><div class="panel-actions"><button class="icon-button" id="add-layer" aria-label="Add layer" title="New layer">+</button><button data-panel-float title="Float Layers" aria-label="Float Layers">◇</button><button data-panel-menu title="Dock Layers" aria-label="Choose Layers dock position">▦</button><button data-panel-collapse title="Collapse Layers" aria-label="Collapse Layers">⌄</button><button data-panel-close title="Hide Layers" aria-label="Hide Layers">×</button></div><div class="panel-dock-menu" role="menu"><button data-panel-dock="left" role="menuitem">Dock left</button><button data-panel-dock="top" role="menuitem">Dock top</button><button data-panel-dock="bottom" role="menuitem">Dock bottom</button><button data-panel-dock="right" role="menuitem">Dock right</button></div></div>
+      <div class="panel-content"><div class="sidebar-caption"><span id="object-count">0 objects</span><span>Top layer in front</span></div><div id="layer-list"></div><div class="sidebar-footer"><span data-icon="cursor"></span><p>Drag this title bar to float the panel.<br>Drop it near an edge to dock.</p></div></div>
+    </aside>
+    <aside id="properties-panel" class="workspace-panel properties-panel" data-panel-id="properties" aria-label="Properties">
+      <div class="panel-resize" data-panel-resize aria-hidden="true"></div>
+      <div class="panel-heading" id="properties-drag"><span class="drag-grip" aria-hidden="true">⠿</span><h1>Properties</h1><div class="panel-actions"><button data-panel-float title="Float Properties" aria-label="Float Properties">◇</button><button data-panel-menu title="Dock Properties" aria-label="Choose Properties dock position">▦</button><button data-panel-collapse title="Collapse Properties" aria-label="Collapse Properties">⌄</button><button data-panel-close title="Hide Properties" aria-label="Hide Properties">×</button></div><div class="panel-dock-menu" role="menu"><button data-panel-dock="left" role="menuitem">Dock left</button><button data-panel-dock="top" role="menuitem">Dock top</button><button data-panel-dock="bottom" role="menuitem">Dock bottom</button><button data-panel-dock="right" role="menuitem">Dock right</button></div></div>
+      <div class="panel-content properties-content"><div class="properties-empty"><span data-icon="cursor"></span><strong>No selection</strong><p>Select an object or choose a creation tool to edit its settings.</p></div><section id="inspector" class="inspector" aria-label="Selection properties"></section></div>
     </aside>
   </main>
   <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/svg+xml" multiple hidden>
