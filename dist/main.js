@@ -15,7 +15,7 @@ const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
 const viewport=$('viewport'),world=$('world'),history=new History();
 let board=createBoard(),camera={x:0,y:0,z:1},selected=null,tool='select',gesture=null,editor=null,arrowStart=null,curvePointArrow=null,space=false,lastSize=null,layerDrag=null;
-let defaults={color:'#292536',fontSize:28,bold:false,stroke:2.5,brush:'fineliner',smoothing:45,route:'smart',shape:'rectangle',fill:'#ffffff',fillOpacity:15,repeatShape:false};
+let defaults={color:'#292536',fontSize:28,bold:false,stroke:2.5,brush:'fineliner',smoothing:45,route:'smart',shape:'rectangle',fill:'#ffffff',fillOpacity:15,repeatShape:true};
 const toolNames={select:'Select',hand:'Pan',text:'Text',image:'Image',arrow:'Arrow',shape:'Shape',pen:'Draw'};
 let customShapes=loadShapeLibrary();
 let drawingEditBefore=null;
