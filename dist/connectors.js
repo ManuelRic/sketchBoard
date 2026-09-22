@@ -67,7 +67,7 @@ export function routePoints(start,end,mode='straight',obstacles=[],controlPoints
   return compress(candidates.sort((a,b)=>(collisions(a,obstacles)*1e6+length(a))-(collisions(b,obstacles)*1e6+length(b)))[0]);
 }
 
-function automaticCurve(a,b){const horizontal=Math.abs(b.x-a.x)>=Math.abs(b.y-a.y),amount=(horizontal?b.x-a.x:b.y-a.y)*.45;return horizontal?`M ${a.x} ${a.y} C ${a.x+amount} ${a.y}, ${b.x-amount} ${b.y}, ${b.x} ${b.y}`:`M ${a.x} ${a.y} C ${a.x} ${a.y+amount}, ${b.x} ${b.y-amount}, ${b.x} ${b.y}`;}
+function automaticCurve(a,b){const dx=b.x-a.x,dy=b.y-a.y,distance=Math.hypot(dx,dy)||1,lead=Math.min(distance*.3,90),bend=Math.min(distance*.16,54),ux=dx/distance,uy=dy/distance,nx=-uy,ny=ux,c1={x:a.x+ux*lead+nx*bend,y:a.y+uy*lead+ny*bend},c2={x:b.x-ux*lead,y:b.y-uy*lead};return `M ${a.x} ${a.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${b.x} ${b.y}`;}
 function smoothCurve(points){if(points.length===2)return automaticCurve(points[0],points[1]);let path=`M ${points[0].x} ${points[0].y}`;for(let i=0;i<points.length-1;i++){const p0=points[Math.max(0,i-1)],p1=points[i],p2=points[i+1],p3=points[Math.min(points.length-1,i+2)],c1={x:p1.x+(p2.x-p0.x)/6,y:p1.y+(p2.y-p0.y)/6},c2={x:p2.x-(p3.x-p1.x)/6,y:p2.y-(p3.y-p1.y)/6};path+=` C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${p2.x} ${p2.y}`;}return path;}
 function roundedPath(points,radius){if(points.length===2)return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;let path=`M ${points[0].x} ${points[0].y}`;for(let i=1;i<points.length-1;i++){const before=points[i-1],corner=points[i],after=points[i+1],inLength=Math.hypot(corner.x-before.x,corner.y-before.y),outLength=Math.hypot(after.x-corner.x,after.y-corner.y),r=Math.min(radius,inLength*.42,outLength*.42),entry={x:corner.x+(before.x-corner.x)*r/inLength,y:corner.y+(before.y-corner.y)*r/inLength},exit={x:corner.x+(after.x-corner.x)*r/outLength,y:corner.y+(after.y-corner.y)*r/outLength};path+=` L ${entry.x} ${entry.y} Q ${corner.x} ${corner.y} ${exit.x} ${exit.y}`;}const end=points.at(-1);return path+` L ${end.x} ${end.y}`;}
 
@@ -77,6 +77,14 @@ export function pathData(points,mode='straight'){
   if(mode==='smartCurve')return points.length===2?automaticCurve(points[0],points[1]):roundedPath(points,24);
   if(mode==='smart')return roundedPath(points,14);
   return `M ${points[0].x} ${points[0].y}`+points.slice(1).map(point=>` L ${point.x} ${point.y}`).join('');
+}
+
+export function aimPathAtTarget(points,end,targetCenter,lead=26){
+  if(points.length<2||!targetCenter)return points;
+  const previous=points.at(-2),incoming={x:end.x-previous.x,y:end.y-previous.y},inward={x:targetCenter.x-end.x,y:targetCenter.y-end.y},cross=incoming.x*inward.y-incoming.y*inward.x,dot=incoming.x*inward.x+incoming.y*inward.y;
+  if(dot>0&&Math.abs(cross)<1e-6*Math.max(1,Math.hypot(incoming.x,incoming.y)*Math.hypot(inward.x,inward.y)))return points;
+  const length=Math.hypot(inward.x,inward.y)||1,guide={x:end.x-inward.x/length*lead,y:end.y-inward.y/length*lead};
+  return dedupe([...points.slice(0,-1),guide,end]);
 }
 
 export function pathBounds(points,padding=20){return {x:Math.min(...points.map(point=>point.x))-padding,y:Math.min(...points.map(point=>point.y))-padding,w:Math.max(1,Math.max(...points.map(point=>point.x))-Math.min(...points.map(point=>point.x))+padding*2),h:Math.max(1,Math.max(...points.map(point=>point.y))-Math.min(...points.map(point=>point.y))+padding*2)};}
