@@ -15,7 +15,7 @@ const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
 const viewport=$('viewport'),world=$('world'),history=new History();
 let board=createBoard(),camera={x:0,y:0,z:1},selected=null,tool='select',gesture=null,editor=null,arrowStart=null,curvePointArrow=null,space=false,lastSize=null,layerDrag=null;
-let defaults={color:'#292536',fontSize:28,bold:false,stroke:2.5,brush:'fineliner',smoothing:45,route:'smart',shape:'rectangle',fill:'#ffffff',fillOpacity:15,repeatShape:true};
+let defaults={color:'#292536',fontSize:28,bold:false,stroke:2.5,brush:'fineliner',smoothing:45,perfectStroke:false,route:'smart',shape:'rectangle',fill:'#ffffff',fillOpacity:15,repeatShape:true};
 const toolNames={select:'Select',hand:'Pan',text:'Text',image:'Image',arrow:'Arrow',shape:'Shape',pen:'Draw'};
 let customShapes=loadShapeLibrary();
 let drawingEditBefore=null;
@@ -23,7 +23,7 @@ let shapeEditBefore=null;
 let canvasEditBefore=null;
 const drawingCache=new WeakMap();
 const connectorCache=new Map();
-function savedStroke(object,hitWidth){const key=[object.w,object.h,object.color,object.stroke,object.brush,object.smoothing,hitWidth].join('|'),cached=drawingCache.get(object.points);if(cached?.key===key)return cached.markup;const points=object.points.map(p=>({...p,x:p.x*object.w/object.baseW,y:p.y*object.h/object.baseH})),markup=strokeMarkup(points,object,hitWidth);drawingCache.set(object.points,{key,markup});return markup;}
+function savedStroke(object,hitWidth){const key=[object.w,object.h,object.color,object.stroke,object.brush,object.smoothing,object.perfectStroke,hitWidth].join('|'),cached=drawingCache.get(object.points);if(cached?.key===key)return cached.markup;const points=object.points.map(p=>({...p,x:p.x*object.w/object.baseW,y:p.y*object.h/object.baseH})),markup=strokeMarkup(points,object,hitWidth);drawingCache.set(object.points,{key,markup});return markup;}
 const find=id=>board.objects.find(o=>o.id===id);
 const center=()=>({x:(viewport.clientWidth/2-camera.x)/camera.z,y:(viewport.clientHeight/2-camera.y)/camera.z});
 const point=e=>{const r=viewport.getBoundingClientRect();return {x:(e.clientX-r.left-camera.x)/camera.z,y:(e.clientY-r.top-camera.y)/camera.z}};
@@ -114,11 +114,12 @@ function updateDrawing(prop,value,live=false){
  if(live&&object&&!drawingEditBefore)drawingEditBefore=clone(board);
  if(tool==='pen'||!object)defaults[prop]=validated[prop];
  if(object){if(!live){const before=drawingEditBefore||clone(board);object[prop]=validated[prop];history.record(before,board);drawingEditBefore=null;}else object[prop]=validated[prop];}
- if(live){renderScene();const style=drawingSettings(target);$('draw-width-value').textContent=style.stroke+' px';$('draw-smoothing-value').textContent=style.smoothing>=100?'Complete':style.smoothing+'%';$('draw-preview').innerHTML=strokeMarkup(previewPoints,style);$('inspector').querySelectorAll('[data-draw-color]').forEach(button=>{const chosen=button.dataset.drawColor===style.color.toLowerCase();button.classList.toggle('chosen',chosen);button.setAttribute('aria-pressed',String(chosen));});}
+ if(live){renderScene();const style=drawingSettings(target);$('draw-width-value').textContent=style.stroke+' px';$('draw-smoothing-value').textContent=style.perfectStroke?'Replaced':style.smoothing>=100?'Complete':style.smoothing+'%';$('draw-preview').innerHTML=strokeMarkup(previewPoints,style);$('inspector').querySelectorAll('[data-draw-color]').forEach(button=>{const chosen=button.dataset.drawColor===style.color.toLowerCase();button.classList.toggle('chosen',chosen);button.setAttribute('aria-pressed',String(chosen));});}
  else render();
 }
-$('inspector').addEventListener('input',e=>{const prop=e.target.dataset.drawProp;if(prop)updateDrawing(prop,prop==='color'?e.target.value:Number(e.target.value),true);});
-$('inspector').addEventListener('change',e=>{const prop=e.target.dataset.drawProp;if(prop)updateDrawing(prop,prop==='color'?e.target.value:Number(e.target.value));});
+const drawingControlValue=target=>target.type==='checkbox'?target.checked:target.dataset.drawProp==='color'?target.value:Number(target.value);
+$('inspector').addEventListener('input',e=>{const prop=e.target.dataset.drawProp;if(prop)updateDrawing(prop,drawingControlValue(e.target),true);});
+$('inspector').addEventListener('change',e=>{const prop=e.target.dataset.drawProp;if(prop)updateDrawing(prop,drawingControlValue(e.target));});
 $('inspector').addEventListener('click',e=>{const brush=e.target.closest('[data-brush]'),color=e.target.closest('[data-draw-color]');if(brush)updateDrawing('brush',brush.dataset.brush);if(color)updateDrawing('color',color.dataset.drawColor);});
 
 function updateShape(prop,value,live=false){const object=find(selected),active=board.layers.find(l=>l.id===board.activeLayer);if(object&&object.type!=='shape'||object&&!editable(board,object)||!object&&(!active.visible||active.locked))return;const target=object||defaults,validated=shapeSettings({...target,[prop]:value});if(live&&object&&!shapeEditBefore)shapeEditBefore=clone(board);const before=!live&&object?(shapeEditBefore||clone(board)):null;if(tool==='shape'||!object)defaults[prop]=validated[prop];if(object){object[prop]=validated[prop];if(!live){history.record(before,board);shapeEditBefore=null;}}if(live){renderScene();const opacity=$('shape-opacity-value'),width=$('shape-width-value');if(opacity)opacity.textContent=validated.fillOpacity+'%';if(width)width.textContent=validated.stroke+' px';}else render();}
