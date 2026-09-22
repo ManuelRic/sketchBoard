@@ -13,16 +13,21 @@
     <section id="viewport" aria-label="Whiteboard canvas" tabindex="0">
       <div class="floating-top" aria-label="Board controls"><input id="board-title" aria-label="Board name" value="Untitled board" maxlength="100"><button id="fit-header" title="Fit canvas (Shift + 1)" data-icon="fit" aria-label="Fit canvas"></button><button id="canvas-settings" aria-haspopup="dialog" aria-controls="canvas-dialog" title="Canvas settings" data-icon="canvas" aria-label="Canvas settings"></button><button id="layers-toggle" aria-expanded="true" aria-controls="sidebar" title="Layers" data-icon="layers" aria-label="Toggle layers"></button></div>
       <div id="world"><div id="paper"></div><div id="objects"></div><div id="overlay"></div></div>
+      <div id="empty-state" class="empty-state" aria-label="Start creating">
+        <span class="eyebrow">Blank canvas</span><strong>Put down your first idea</strong><p>Start with a note, a shape, or a freehand sketch.</p>
+        <div><button data-empty-tool="text"><span data-icon="text"></span>Text <kbd>T</kbd></button><button data-empty-tool="shape"><span data-icon="shape"></span>Shape <kbd>S</kbd></button><button data-empty-tool="pen"><span data-icon="pen"></span>Draw <kbd>P</kbd></button></div>
+      </div>
+      <div id="selection-bar" class="selection-bar" hidden aria-label="Selected object actions"><span id="selection-name"></span><button data-canvas-selection-action="duplicate" title="Duplicate (Ctrl/⌘ D)" aria-label="Duplicate selection">Duplicate</button><button data-canvas-selection-action="back" title="Send backward" aria-label="Send selection backward">Back</button><button data-canvas-selection-action="front" title="Bring forward" aria-label="Bring selection forward">Front</button><button class="danger" data-canvas-selection-action="delete" title="Delete (Delete)" aria-label="Delete selection">Delete</button></div>
       <div class="canvas-label" id="canvas-label">CANVAS 01</div>
       <nav class="toolbar" aria-label="Whiteboard tools">
-        <button class="tool active" data-tool="select" aria-label="Select (V)" title="Select · V" aria-pressed="true" data-icon="select"></button>
-        <button class="tool" data-tool="hand" aria-label="Pan (H)" title="Pan · H" aria-pressed="false" data-icon="hand"></button>
+        <button class="tool active" data-tool="select" data-label="Select  V" aria-keyshortcuts="V" aria-label="Select (V)" title="Select · V" aria-pressed="true" data-icon="select"></button>
+        <button class="tool" data-tool="hand" data-label="Pan  H" aria-keyshortcuts="H" aria-label="Pan (H)" title="Pan · H" aria-pressed="false" data-icon="hand"></button>
         <span class="tool-divider"></span>
-        <button class="tool" data-tool="text" aria-label="Add text (T)" title="Text · T" aria-pressed="false" data-icon="text"></button>
-        <button class="tool" data-tool="image" aria-label="Insert image (I)" title="Image · I" aria-pressed="false" data-icon="image"></button>
-        <button class="tool" data-tool="arrow" aria-label="Connect with arrow (A)" title="Arrow · A" aria-pressed="false" data-icon="arrow"></button>
-        <button class="tool" data-tool="shape" aria-label="Add shape (S)" title="Shape · S" aria-pressed="false" data-icon="shape"></button>
-        <button class="tool" data-tool="pen" aria-label="Draw (P)" title="Draw · P" aria-pressed="false" data-icon="pen"></button>
+        <button class="tool" data-tool="text" data-label="Text  T" aria-keyshortcuts="T" aria-label="Add text (T)" title="Text · T" aria-pressed="false" data-icon="text"></button>
+        <button class="tool" data-tool="image" data-label="Image  I" aria-keyshortcuts="I" aria-label="Insert image (I)" title="Image · I" aria-pressed="false" data-icon="image"></button>
+        <button class="tool" data-tool="arrow" data-label="Arrow  A" aria-keyshortcuts="A" aria-label="Connect with arrow (A)" title="Arrow · A" aria-pressed="false" data-icon="arrow"></button>
+        <button class="tool" data-tool="shape" data-label="Shape  S" aria-keyshortcuts="S" aria-label="Add shape (S)" title="Shape · S" aria-pressed="false" data-icon="shape"></button>
+        <button class="tool" data-tool="pen" data-label="Draw  P" aria-keyshortcuts="P" aria-label="Draw (P)" title="Draw · P" aria-pressed="false" data-icon="pen"></button>
         <span class="tool-divider"></span>
         <button class="tool" id="undo" aria-label="Undo" title="Undo · Ctrl/⌘ Z" data-icon="undo" disabled></button>
         <button class="tool" id="redo" aria-label="Redo" title="Redo · Ctrl/⌘ Shift Z" data-icon="redo" disabled></button>
@@ -32,7 +37,7 @@
       <button class="edge edge-bottom" data-expand="bottom" aria-label="Expand canvas downward" title="Add space below">+</button>
       <button class="edge edge-left" data-expand="left" aria-label="Expand canvas leftward" title="Add space to the left">+</button>
       <div class="view-controls"><button id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button><button id="zoom-label" title="Reset to 100%">100%</button><button id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button><span></span><button id="fit" aria-label="Fit canvas" title="Fit canvas · Shift 1" data-icon="fit"></button></div>
-      <div class="canvas-hint" id="hint">Click an edge <b>+</b> to make room.</div>
+      <div class="canvas-status"><div class="canvas-hint" id="hint" data-mode="Select" role="status">Click to select · Drag to move · Space to pan</div><button id="shortcut-help" aria-haspopup="dialog" aria-controls="shortcuts-dialog" title="Keyboard shortcuts (?)" aria-label="Open keyboard shortcuts">?</button></div>
       <div class="canvas-size" id="size-label"></div>
       <div id="toast" role="status" aria-live="polite"></div>
     </section>
@@ -74,6 +79,15 @@
       </div>
     </div>
     <div class="dialog-foot"><p>Guide changes stay editable and are included in undo history.</p><button id="canvas-done" class="button primary">Done</button></div>
+  </dialog>
+  <dialog id="shortcuts-dialog" class="shortcuts-dialog" aria-labelledby="shortcuts-title">
+    <div class="dialog-head"><div><span class="eyebrow">Quick reference</span><h2 id="shortcuts-title">Keyboard shortcuts</h2></div><button id="shortcuts-close" class="dialog-close" aria-label="Close keyboard shortcuts">×</button></div>
+    <div class="shortcut-groups">
+      <section><h3>Tools</h3><dl><div><dt>Select</dt><dd><kbd>V</kbd></dd></div><div><dt>Pan</dt><dd><kbd>H</kbd> or hold <kbd>Space</kbd></dd></div><div><dt>Text</dt><dd><kbd>T</kbd></dd></div><div><dt>Image</dt><dd><kbd>I</kbd></dd></div><div><dt>Arrow</dt><dd><kbd>A</kbd></dd></div><div><dt>Shape</dt><dd><kbd>S</kbd></dd></div><div><dt>Draw</dt><dd><kbd>P</kbd></dd></div></dl></section>
+      <section><h3>Edit</h3><dl><div><dt>Undo / redo</dt><dd><kbd>Ctrl/⌘ Z</kbd> <kbd>Ctrl/⌘ ⇧ Z</kbd></dd></div><div><dt>Duplicate</dt><dd><kbd>Ctrl/⌘ D</kbd></dd></div><div><dt>Delete</dt><dd><kbd>Delete</kbd></dd></div><div><dt>Nudge</dt><dd><kbd>Arrow keys</kbd></dd></div><div><dt>Move faster</dt><dd><kbd>Shift</kbd> + arrows</dd></div></dl></section>
+      <section><h3>Canvas</h3><dl><div><dt>Fit canvas</dt><dd><kbd>Shift 1</kbd></dd></div><div><dt>Zoom</dt><dd><kbd>Ctrl/⌘</kbd> + wheel</dd></div><div><dt>Bypass snapping</dt><dd>Hold <kbd>Alt</kbd></dd></div><div><dt>Finish / cancel</dt><dd><kbd>Esc</kbd></dd></div><div><dt>Keep placing shapes</dt><dd>Hold <kbd>Shift</kbd></dd></div></dl></section>
+    </div>
+    <div class="dialog-foot"><p>Tip: double-click empty canvas to start a text note.</p><button id="shortcuts-done" class="button primary">Done</button></div>
   </dialog>
   <script type="module" src="./main.js"></script>
 </body>
