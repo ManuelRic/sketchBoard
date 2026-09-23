@@ -87,4 +87,9 @@ export function aimPathAtTarget(points,end,targetCenter,lead=26){
   return dedupe([...points.slice(0,-1),guide,end]);
 }
 
+export function arrowheadFlags(value='end'){
+  const mode=['none','end','both'].includes(value)?value:'end';
+  return {mode,start:mode==='both',end:mode!=='none'};
+}
+
 export function pathBounds(points,padding=20){return {x:Math.min(...points.map(point=>point.x))-padding,y:Math.min(...points.map(point=>point.y))-padding,w:Math.max(1,Math.max(...points.map(point=>point.x))-Math.min(...points.map(point=>point.x))+padding*2),h:Math.max(1,Math.max(...points.map(point=>point.y))-Math.min(...points.map(point=>point.y))+padding*2)};}

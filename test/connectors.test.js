@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {routePoints,pathData,pathBounds,aimPathAtTarget} from '../dist/connectors.js';
+import {routePoints,pathData,pathBounds,aimPathAtTarget,arrowheadFlags} from '../dist/connectors.js';
 
 test('smart connectors route around an obstructing object',()=>{const start={x:0,y:50},end={x:300,y:50},obstacle={x:120,y:10,w:60,h:80},points=routePoints(start,end,'smart',[obstacle]);assert.ok(points.length>2);assert.deepEqual(points[0],start);assert.deepEqual(points.at(-1),end);assert.ok(points.some(p=>p.y<obstacle.y||p.y>obstacle.y+obstacle.h));});
 test('connector modes produce line and curve paths with safe bounds',()=>{const points=[{x:-20,y:10},{x:80,y:60}];assert.match(pathData(points,'straight'),/ L /);assert.match(pathData(points,'curve'),/ C /);assert.deepEqual(pathBounds(points,10),{x:-30,y:0,w:120,h:70});});
@@ -8,3 +8,4 @@ test('smart avoid finds a clean route through multiple obstacles and rounds its 
 test('smart curves honor user curve points while keeping automatic routing',()=>{const start={x:0,y:0},end={x:300,y:0},control={x:150,y:140},obstacle={x:115,y:45,w:70,h:55},points=routePoints(start,end,'smartCurve',[obstacle],[control]);assert.deepEqual(points[0],start);assert.deepEqual(points.at(-1),end);assert.ok(points.some(point=>point.x===control.x&&point.y===control.y));assert.match(pathData(points,'smartCurve'),/[CQ]/);});
 test('manual curve points are emitted as smooth cubic segments',()=>{const points=routePoints({x:0,y:0},{x:200,y:0},'curve',[],[{x:60,y:90},{x:140,y:-40}]);const data=pathData(points,'curve');assert.equal((data.match(/ C /g)||[]).length,3);assert.match(data,/60 90/);assert.match(data,/140 -40/);});
 test('the final arrow segment always aims inward at its target object',()=>{const end={x:200,y:80},center={x:240,y:80},points=aimPathAtTarget([{x:0,y:0},{x:180,y:160},end],end,center),previous=points.at(-2),incoming={x:end.x-previous.x,y:end.y-previous.y},inward={x:center.x-end.x,y:center.y-end.y};assert.ok(incoming.x*inward.x+incoming.y*inward.y>0);assert.ok(Math.abs(incoming.x*inward.y-incoming.y*inward.x)<1e-9);assert.equal(points.at(-1),end);});
+test('arrowhead options support a line, one head, and two heads',()=>{assert.deepEqual(arrowheadFlags('none'),{mode:'none',start:false,end:false});assert.deepEqual(arrowheadFlags('end'),{mode:'end',start:false,end:true});assert.deepEqual(arrowheadFlags('both'),{mode:'both',start:true,end:true});assert.deepEqual(arrowheadFlags('invalid'),{mode:'end',start:false,end:true});});
