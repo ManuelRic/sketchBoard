@@ -3,6 +3,10 @@ const storageKey='plane-workspace-panels-v3';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const copy=value=>JSON.parse(JSON.stringify(value));
 
+export const toolHasProperties=tool=>['select','text','arrow','pen','shape'].includes(tool);
+
+export function revealPanelState(state){return {...state,visible:true,collapsed:false};}
+
 export function defaultPanelStates(width=1200,height=800){const compact=width<720;return {
   layers:{mode:'dock',dock:'right',width:compact?Math.min(290,width*.86):310,height:Math.min(620,height*.78),x:Math.max(12,width-650),y:72,visible:false,collapsed:false},
   properties:{mode:'float',dock:'right',width:compact?Math.min(290,width*.86):310,height:Math.min(610,height-110),x:Math.max(12,width-650),y:72,visible:false,collapsed:false}
@@ -24,6 +28,7 @@ export function initPanelWorkspace({workspace,panels,resetButton}){const rect=()
   const hide=id=>{states[id].visible=false;closeMenus();apply();persist();};
   const toggle=id=>states[id].visible?hide(id):show(id);
   const bringFront=panel=>{if(panel.dataset.panelMode==='float')panel.style.zIndex=String(++topZ);};
+  const reveal=id=>{const item=panels.find(panel=>panel.id===id);Object.assign(states[id],revealPanelState(states[id]));closeMenus();apply();if(item)bringFront(item.element);persist();};
   for(const item of panels){const {id,element:panel,handle,toggle:toggleButton}=item,state=states[id],resize=panel.querySelector('[data-panel-resize]');
     toggleButton?.addEventListener('click',()=>toggle(id));panel.addEventListener('pointerdown',()=>bringFront(panel));
     panel.addEventListener('click',event=>{const dock=event.target.closest('[data-panel-dock]')?.dataset.panelDock;if(dock){setDock(id,dock);return}if(event.target.closest('[data-panel-float]')){setFloat(id,panel.getBoundingClientRect());return}if(event.target.closest('[data-panel-close]')){hide(id);return}if(event.target.closest('[data-panel-collapse]')){state.collapsed=!state.collapsed;closeMenus();apply();persist();return}if(event.target.closest('[data-panel-menu]')){const opening=activeMenu!==id;closeMenus();if(opening){panel.classList.add('panel-menu-open');activeMenu=id;}}});
@@ -33,5 +38,5 @@ export function initPanelWorkspace({workspace,panels,resetButton}){const rect=()
   }
   document.addEventListener('pointerdown',event=>{if(activeMenu&&!event.target.closest('.panel-actions,.panel-dock-menu'))closeMenus();});
   resetButton?.addEventListener('click',()=>{const fresh=defaultPanelStates(rect().width,rect().height);for(const id of Object.keys(states))states[id]=copy(fresh[id]);localStorage.removeItem(storageKey);apply();persist();});
-  window.addEventListener('resize',apply);apply();return {show,hide,toggle,setDock,setFloat,reset:()=>resetButton?.click(),state:id=>copy(states[id])};
+  window.addEventListener('resize',apply);apply();return {show,hide,toggle,reveal,setDock,setFloat,reset:()=>resetButton?.click(),state:id=>copy(states[id])};
 }
