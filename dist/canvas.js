@@ -23,6 +23,21 @@ export function paperStyle(values={}){
  return {backgroundColor:'#fff',backgroundImage:guideImage==='none'?checker:`${guideImage},${checker}`,backgroundSize:guideImage==='none'?'20px 20px':`${Array(guideLayers).fill(guideSize).join(',')},20px 20px`,backgroundPosition:'0 0'};
 }
 
+export function infinitePaperStyle(values={},view={}){
+ const s=canvasSettings(values),z=clamp(Number.isFinite(Number(view.z))?view.z:1,.08,4),x=Number(view.x)||0,y=Number(view.y)||0,line=rgba(s.guideColor,s.guideOpacity),t=Math.max(.5,s.guideThickness*z),g=Math.max(2,s.guideSpacing*z),images=[],sizes=[],positions=[],repeats=[];
+ const layer=(image,size='auto',position=`${x}px ${y}px`,repeat='repeat')=>{images.push(image);sizes.push(size);positions.push(position);repeats.push(repeat);};
+ if(s.guide==='grid'){layer(`linear-gradient(to right, ${line} ${t}px, transparent ${t}px)`,`${g}px ${g}px`);layer(`linear-gradient(to bottom, ${line} ${t}px, transparent ${t}px)`,`${g}px ${g}px`);}
+ if(s.guide==='lines')layer(`linear-gradient(to bottom, transparent calc(100% - ${t}px), ${line} ${t}px)`,`${g}px ${g}px`);
+ if(s.guide==='dots')layer(`radial-gradient(circle, ${line} ${Math.max(1,t)}px, transparent ${Math.max(1,t)+.6}px)`,`${g}px ${g}px`);
+ if(s.guide==='isometric'){const tile=`${g*2}px ${g*2}px`;layer(`repeating-linear-gradient(30deg, transparent 0 ${g-1}px, ${line} ${g-1}px ${g}px)`,tile);layer(`repeating-linear-gradient(150deg, transparent 0 ${g-1}px, ${line} ${g-1}px ${g}px)`,tile);layer(`repeating-linear-gradient(90deg, transparent 0 ${g-1}px, ${line} ${g-1}px ${g}px)`,tile);}
+ if(s.guide==='perspective')layer(`repeating-conic-gradient(from 0deg at ${x}px ${y}px, transparent 0deg 14.7deg, ${line} 14.7deg 15deg)`,'100% 100%','0 0','no-repeat');
+ if(s.guide==='symmetry'){layer(`linear-gradient(${line},${line})`,`${t}px 100%`,`${x-t/2}px 0`,'no-repeat');layer(`linear-gradient(${line},${line})`,`100% ${t}px`,`0 ${y-t/2}px`,'no-repeat');}
+ if(s.transparent)layer('repeating-conic-gradient(#e8e8ec 0 25%,#fff 0 50%)',`${20*z}px ${20*z}px`,`${x}px ${y}px`);
+ return {backgroundColor:s.transparent?'#fff':s.background,backgroundImage:images.length?images.join(','):'none',backgroundSize:sizes.length?sizes.join(','):'auto',backgroundPosition:positions.length?positions.join(','):'0 0',backgroundRepeat:repeats.length?repeats.join(','):'repeat'};
+}
+
+export function centeredCamera(width,height,zoom=1){return {x:Math.max(0,Number(width)||0)/2,y:Math.max(0,Number(height)||0)/2,z:clamp(Number.isFinite(Number(zoom))?zoom:1,.08,4)};}
+
 export function snapPosition(values,x,y,altKey=false){const s=canvasSettings(values);if(!s.snap||s.guide==='none'||altKey)return {x,y};const snap=n=>Math.round(n/s.guideSpacing)*s.guideSpacing;if(s.guide==='lines')return {x,y:snap(y)};if(s.guide==='symmetry')return {x,y};return {x:snap(x),y:snap(y)};}
 
 export function flipCanvas(board,axis){if(!['horizontal','vertical'].includes(axis))throw new Error('Unknown flip axis');const b=board.bounds,cx=b.x+b.w/2,cy=b.y+b.h/2;for(const object of board.objects){if(object.type==='arrow'){for(const endpoint of [object.start,object.end]){if(endpoint.objectId)continue;if(axis==='horizontal')endpoint.x=2*cx-endpoint.x;else endpoint.y=2*cy-endpoint.y;}continue}if(axis==='horizontal'){object.x=2*cx-object.x-object.w;object.flipX=!object.flipX;}else{object.y=2*cy-object.y-object.h;object.flipY=!object.flipY;}}}
